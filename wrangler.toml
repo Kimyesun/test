@@ -2,13 +2,14 @@ name = "test"
 compatibility_date = "2025-11-27"
 main = "src/index.js"
 
+# 정적 파일 설정
 [assets]
-directory = "./"
+directory = "public"
 
 # 커스텀 도메인 설정 (배포 후 Cloudflare 대시보드에서도 설정 필요)
-routes = [
-  { pattern = "kimys.mmv.kr/*", zone_name = "mmv.kr" }
-]
+[[routes]]
+pattern = "kimys.mmv.kr/*"
+zone_name = "mmv.kr"
 
 # D1 데이터베이스 바인딩
 [[d1_databases]]
