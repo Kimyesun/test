@@ -1,5 +1,6 @@
 name = "test"
 compatibility_date = "2025-11-27"
+main = "src/index.js"
 
 [assets]
 directory = "./"
@@ -8,3 +9,23 @@ directory = "./"
 routes = [
   { pattern = "kimys.mmv.kr/*", zone_name = "mmv.kr" }
 ]
+
+# D1 데이터베이스 바인딩
+[[d1_databases]]
+binding = "DB"
+database_name = "studyhub-db"
+database_id = "f4c0eeca-3eed-4971-a700-0fe51f23bbf9"
+
+# 환경 변수 (시크릿은 wrangler secret put으로 설정)
+[vars]
+ENVIRONMENT = "production"
+
+# 로컬 개발 환경 설정
+[env.dev]
+name = "aged-wood-1956-dev"
+
+[[env.dev.d1_databases]]
+binding = "DB"
+database_name = "studyhub-db-dev"
+database_id = "placeholder-id-dev" # 로컬 테스트용
+

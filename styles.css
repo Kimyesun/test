@@ -101,6 +101,20 @@ img {
   color: white;
 }
 
+/* 사용자 인사말 스타일 */
+.user-greeting {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: 0 2px 10px rgba(245, 87, 108, 0.3);
+}
+
 .btn-ghost {
   background: rgba(255,255,255,0.2);
   color: white;

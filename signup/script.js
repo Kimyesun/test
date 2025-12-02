@@ -2,11 +2,14 @@
 const API_BASE_URL = window.location.origin;
 
 // DOM 요소
-const loginForm = document.getElementById('loginForm');
+const signupForm = document.getElementById('signupForm');
 const userIdInput = document.getElementById('userId');
+const usernameInput = document.getElementById('username');
 const passwordInput = document.getElementById('password');
+const confirmPasswordInput = document.getElementById('confirmPassword');
 const togglePasswordBtn = document.getElementById('togglePassword');
-const rememberMeCheckbox = document.getElementById('rememberMe');
+const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPassword');
+const passwordStrength = document.getElementById('passwordStrength');
 const submitBtn = document.getElementById('submitBtn');
 
 // ===== 비밀번호 표시/숨김 =====
@@ -16,40 +19,96 @@ togglePasswordBtn?.addEventListener('click', () => {
   togglePasswordBtn.querySelector('i').className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
 });
 
-// ===== 저장된 아이디 불러오기 =====
-window.addEventListener('load', () => {
-  const savedUserId = localStorage.getItem('rememberedUserId');
-  if (savedUserId) {
-    userIdInput.value = savedUserId;
-    rememberMeCheckbox.checked = true;
+toggleConfirmPasswordBtn?.addEventListener('click', () => {
+  const type = confirmPasswordInput.type === 'password' ? 'text' : 'password';
+  confirmPasswordInput.type = type;
+  toggleConfirmPasswordBtn.querySelector('i').className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+});
+
+// ===== 비밀번호 강도 체크 =====
+passwordInput?.addEventListener('input', () => {
+  const password = passwordInput.value;
+  const strength = checkPasswordStrength(password);
+  
+  const fill = passwordStrength.querySelector('.strength-fill');
+  const text = passwordStrength.querySelector('.strength-text');
+  
+  // 강도에 따라 스타일 변경
+  passwordStrength.className = 'password-strength';
+  if (strength.score === 0) {
+    fill.style.width = '0%';
+    text.textContent = '';
+  } else if (strength.score === 1) {
+    fill.style.width = '33%';
+    text.textContent = '약함';
+    passwordStrength.classList.add('weak');
+  } else if (strength.score === 2) {
+    fill.style.width = '66%';
+    text.textContent = '보통';
+    passwordStrength.classList.add('medium');
+  } else {
+    fill.style.width = '100%';
+    text.textContent = '강함';
+    passwordStrength.classList.add('strong');
   }
 });
 
-// ===== 로그인 폼 제출 =====
-loginForm?.addEventListener('submit', async (e) => {
+// 비밀번호 강도 체크 함수
+function checkPasswordStrength(password) {
+  let score = 0;
+  
+  if (password.length >= 8) score++;
+  if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[^a-zA-Z0-9]/.test(password)) score++; // 특수문자
+  
+  return { score: Math.min(score, 3) };
+}
+
+// ===== 회원가입 폼 제출 =====
+signupForm?.addEventListener('submit', async (e) => {
   e.preventDefault();
   
   const userId = userIdInput.value.trim();
+  const username = usernameInput.value.trim();
   const password = passwordInput.value;
-  const rememberMe = rememberMeCheckbox.checked;
+  const confirmPassword = confirmPasswordInput.value;
   
   // 유효성 검사
-  if (!userId || !password) {
-    showNotification('아이디와 비밀번호를 입력해주세요.', 'error');
+  if (password !== confirmPassword) {
+    showNotification('비밀번호가 일치하지 않습니다.', 'error');
+    return;
+  }
+  
+  // 아이디 유효성 검사
+  const userIdRegex = /^[a-z0-9_]{4,20}$/;
+  if (!userIdRegex.test(userId)) {
+    showNotification('아이디는 4-20자의 영문 소문자, 숫자, 언더스코어(_)만 사용 가능합니다.', 'error');
+    return;
+  }
+  
+  if (username.length < 2 || username.length > 20) {
+    showNotification('사용자명은 2자 이상 20자 이하여야 합니다.', 'error');
+    return;
+  }
+  
+  const strength = checkPasswordStrength(password);
+  if (strength.score < 2) {
+    showNotification('더 강한 비밀번호를 사용해주세요.', 'error');
     return;
   }
   
   // 로딩 상태
   submitBtn.disabled = true;
-  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 로그인 중...';
+  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 가입 중...';
   
   try {
-    const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+    const response = await fetch(`${API_BASE_URL}/api/auth/signup`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ userId, password })
+      body: JSON.stringify({ userId, username, password })
     });
     
     const data = await response.json();
@@ -59,28 +118,21 @@ loginForm?.addEventListener('submit', async (e) => {
       localStorage.setItem('authToken', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
       
-      // 아이디 저장 (로그인 상태 유지)
-      if (rememberMe) {
-        localStorage.setItem('rememberedUserId', userId);
-      } else {
-        localStorage.removeItem('rememberedUserId');
-      }
-      
-      showNotification('로그인 성공! 환영합니다. 🎉', 'success');
+      showNotification('회원가입이 완료되었습니다! 🎉', 'success');
       
       // 메인 페이지로 리다이렉트
       setTimeout(() => {
         window.location.href = '/';
       }, 1500);
     } else {
-      showNotification(data.error || '로그인에 실패했습니다.', 'error');
+      showNotification(data.error || '회원가입에 실패했습니다.', 'error');
     }
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Signup error:', error);
     showNotification('서버와의 연결에 실패했습니다.', 'error');
   } finally {
     submitBtn.disabled = false;
-    submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> 로그인';
+    submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> 회원가입';
   }
 });
 
@@ -163,4 +215,4 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-console.log('🎓 로그인 페이지가 로드되었습니다!');
+console.log('🎓 회원가입 페이지가 로드되었습니다!');

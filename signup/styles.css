@@ -1,4 +1,4 @@
-/* 로그인 페이지 스타일 */
+/* 회원가입 페이지 스타일 */
 
 * {
   margin: 0;
@@ -19,7 +19,7 @@ body {
 .auth-container {
   position: relative;
   width: 100%;
-  max-width: 450px;
+  max-width: 480px;
   z-index: 1;
 }
 
@@ -104,6 +104,11 @@ body {
   box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
 }
 
+.input-hint {
+  font-size: 12px;
+  color: #718096;
+}
+
 /* 비밀번호 입력 */
 .password-input {
   position: relative;
@@ -134,25 +139,77 @@ body {
   color: #667eea;
 }
 
-/* 폼 옵션 */
-.form-options {
+/* 비밀번호 강도 표시 */
+.password-strength {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-top: -8px;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.strength-bar {
+  flex: 1;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.strength-fill {
+  height: 100%;
+  width: 0%;
+  transition: all 0.3s ease;
+  background: #cbd5e0;
+}
+
+.password-strength.weak .strength-fill {
+  background: #f56565;
+}
+
+.password-strength.medium .strength-fill {
+  background: #ed8936;
+}
+
+.password-strength.strong .strength-fill {
+  background: #48bb78;
+}
+
+.strength-text {
+  font-size: 12px;
+  font-weight: 600;
+  min-width: 40px;
+  color: #718096;
+}
+
+.password-strength.weak .strength-text {
+  color: #f56565;
+}
+
+.password-strength.medium .strength-text {
+  color: #ed8936;
+}
+
+.password-strength.strong .strength-text {
+  color: #48bb78;
+}
+
+/* 체크박스 */
+.checkbox-group {
+  margin-top: 8px;
 }
 
 .checkbox-label {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  align-items: flex-start;
+  gap: 10px;
+  font-weight: 400;
   font-size: 13px;
   color: #4a5568;
   cursor: pointer;
-  font-weight: 400;
 }
 
 .checkbox-label input[type="checkbox"] {
+  margin-top: 2px;
   cursor: pointer;
 }
 
@@ -343,11 +400,5 @@ body {
   
   .logo i {
     font-size: 28px;
-  }
-  
-  .form-options {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
   }
 }

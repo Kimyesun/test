@@ -5,6 +5,45 @@ const navAuth = document.querySelector('.nav-auth');
 const navbar = document.querySelector('.navbar');
 const signupForm = document.getElementById('signupForm');
 
+// ===== 로그인 상태 확인 및 UI 업데이트 =====
+function checkAuthStatus() {
+  const token = localStorage.getItem('authToken');
+  const userStr = localStorage.getItem('user');
+  
+  if (token && userStr) {
+    try {
+      const user = JSON.parse(userStr);
+      if (user.username && navAuth) {
+        // 로그인된 상태 - 네비게이션 변경
+        navAuth.innerHTML = `
+          <span class="user-greeting">👋 ${user.username}님</span>
+          <button class="btn btn-outline" id="logoutBtn">로그아웃</button>
+        `;
+        
+        // 로그아웃 버튼 이벤트
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+          logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('user');
+            showNotification('로그아웃되었습니다.', 'success');
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          });
+        }
+      }
+    } catch (e) {
+      console.error('Failed to parse user data:', e);
+      localStorage.removeItem('user');
+      localStorage.removeItem('authToken');
+    }
+  }
+}
+
+// 페이지 로드 시 인증 상태 확인
+checkAuthStatus();
+
 // ===== 모바일 메뉴 토글 =====
 if (hamburger) {
   hamburger.addEventListener('click', () => {
